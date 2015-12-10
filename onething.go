@@ -22,13 +22,12 @@ func main() {
 	dieIfErr(err)
 	defer db.Close()
 
+	// Set up router and handling, start server
 	r := mux.NewRouter()
-	// Routes consist of a path and a handler function.
 	for k, v := range MakeHandlers(db) {
 		r.HandleFunc(k, v)
 	}
 
-	// Bind to a port and pass our router in
 	fmt.Println("Listening on port " + port)
 	http.ListenAndServe(port, r)
 }
@@ -39,8 +38,14 @@ func dieIfErr(e error) {
 	}
 }
 
+// Returns a map of url patterns to the handlers that should handle them.
 func MakeHandlers(db *sql.DB) map[string]func(http.ResponseWriter, *http.Request) {
 	handlers := make(map[string]func(http.ResponseWriter, *http.Request))
+	handlers["/"] = func(w http.ResponseWriter, r *http.Request) {
+		t, _ := template.ParseFiles("tmpl/index.html")
+		t.Execute(w, struct{}{})
+	}
+
 	handlers["/user/{username}"] = func(w http.ResponseWriter, r *http.Request) {
 		rows := DoQuery(db, "SELECT * FROM items WHERE username = ? ORDER BY postWhen", mux.Vars(r)["username"])
 		items := make([]Item, 0)
@@ -80,7 +85,7 @@ func put(w http.ResponseWriter, s string) {
 	w.Write([]byte(s))
 }
 
-//
+// Represents an item posted by a user.
 type Item struct {
 	Url   string
 	Title string
