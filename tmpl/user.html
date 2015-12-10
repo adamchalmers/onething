@@ -1,0 +1,6 @@
+<h1>{{.Username}}</h1>
+{{range .Items}}
+<ul>
+  <li><a href="{{.Url}}">{{.Title}}</a> ({{.When}})</li>
+</ul>
+{{end}}
