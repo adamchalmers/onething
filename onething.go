@@ -41,22 +41,27 @@ func dieIfErr(e error) {
 // Returns a map of url patterns to the handlers that should handle them.
 func MakeHandlers(db *sql.DB) map[string]func(http.ResponseWriter, *http.Request) {
 	handlers := make(map[string]func(http.ResponseWriter, *http.Request))
+
+	// Index
 	handlers["/"] = func(w http.ResponseWriter, r *http.Request) {
+		me := "adam_chal"
+		rows := DoQuery(db, "SELECT i.username, i.link, i.title, i.postWhen FROM items i INNER JOIN follows f ON f.following = i.username WHERE f.username = ? ORDER BY postWhen DESC", me)
+		items := itemsFromRows(rows)
 		t, _ := template.ParseFiles("tmpl/index.html")
-		t.Execute(w, struct{}{})
+
+		t.Execute(w, struct {
+			Me    string
+			Items []Item
+		}{
+			me,
+			items,
+		})
 	}
 
+	// User profile
 	handlers["/user/{username}"] = func(w http.ResponseWriter, r *http.Request) {
 		rows := DoQuery(db, "SELECT * FROM items WHERE username = ? ORDER BY postWhen", mux.Vars(r)["username"])
-		items := make([]Item, 0)
-		for rows.Next() {
-			var username string
-			var link string
-			var title string
-			var when time.Time
-			rows.Scan(&username, &link, &title, &when)
-			items = append(items, Item{link, title, when.Format(time.UnixDate)})
-		}
+		items := itemsFromRows(rows)
 
 		t, _ := template.ParseFiles("tmpl/user.html")
 		t.Execute(w, struct {
@@ -87,7 +92,21 @@ func put(w http.ResponseWriter, s string) {
 
 // Represents an item posted by a user.
 type Item struct {
-	Url   string
-	Title string
-	When  string
+	Username string
+	Url      string
+	Title    string
+	When     string
+}
+
+func itemsFromRows(rows *sql.Rows) []Item {
+	items := make([]Item, 0)
+	for rows.Next() {
+		var username string
+		var link string
+		var title string
+		var when time.Time
+		rows.Scan(&username, &link, &title, &when)
+		items = append(items, Item{username, link, title, when.Format(time.UnixDate)})
+	}
+	return items
 }
