@@ -1,6 +1,13 @@
-<h1>{{.Username}}</h1>
-{{range .Items}}
-<ul>
-  <li><a href="{{.Url}}">{{.Title}}</a> ({{.When}})</li>
-</ul>
-{{end}}
+<html>
+  <head>
+    <title>OneThing</title>
+  </head>
+  <body>
+    <h1>{{.Username}}</h1>
+    {{range .Items}}
+    <ul>
+      <li><a href="{{.Url}}">{{.Title}}</a> ({{.When}})</li>
+    </ul>
+    {{end}}
+  </body>
+</html>

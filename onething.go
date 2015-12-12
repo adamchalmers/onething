@@ -98,6 +98,7 @@ type Item struct {
 	When     string
 }
 
+// itemFromRows returns the Items that an SQL query result represents.
 func itemsFromRows(rows *sql.Rows) []Item {
 	items := make([]Item, 0)
 	for rows.Next() {

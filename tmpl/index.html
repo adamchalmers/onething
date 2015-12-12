@@ -1,6 +1,13 @@
-<h1>{{.Me}}'s OneThing feed</h1>
-{{range .Items}}
-<ul>
-  <li><strong>{{.Username}}</strong>: <a href="{{.Url}}">{{.Title}}</a> ({{.When}})</li>
-</ul>
-{{end}}
+<html>
+  <head>
+    <title>OneThing</title>
+  </head>
+  <body>
+    <h1>{{.Me}}'s OneThing feed</h1>
+    {{range .Items}}
+    <ul>
+      <li><strong>{{.Username}}</strong>: <a href="{{.Url}}">{{.Title}}</a> ({{.When}})</li>
+    </ul>
+    {{end}}
+  </body>
+</html>
